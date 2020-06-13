@@ -85,7 +85,7 @@ def gen_2b(branch1=None, branch2=None, branch3=None, branch4=None):
     return network
 
 
-def get_network(percentTrainKeeps=1):
+def get_network(partitioning_layer, percentTrainKeeps=1):
     """
     Built a BranchyNet, where the main branch is a AlexNet and four side branches are inserted 
     in main branch.
@@ -97,7 +97,7 @@ def get_network(percentTrainKeeps=1):
     branch4 = conv(32) + cap(512)
 
     network = gen_2b(branch1, branch2, branch3, branch4)
-    net = BranchyNet(network)
+    net = BranchyNet(network, partitioning_layer)
 
     return net
 

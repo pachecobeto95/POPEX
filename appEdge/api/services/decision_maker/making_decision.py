@@ -5,6 +5,7 @@ from ...branchMe.networks import alex_cifar10
 import config
 import pandas as pd
 from ...branchMe.utils import read_parameters
+from ...branchMe.networks import alex_conv 
 from ...branchMe.partitioning_dnn.dnn_as_graphs import Model_DNN_Graph 
 import ast, json
 #import psutil
@@ -69,7 +70,7 @@ def choosing_strategy(current_bandwidth=1.1):
 	df = pd.read_csv("a.csv")
 	
 
-	df_bandwidth = df[df.bandwidth == current_bandwidth]
+	df_bandwidth = df.iloc[(df['bandwidth']-current_bandwidth).abs().argsort()[0]]
 	
 
 	weighted_acc = df_bandwidth.weighted_accuracy
@@ -96,11 +97,11 @@ def choosing_strategy(current_bandwidth=1.1):
 	return choosen_inf_time, choosen_accs, choosen_partitioning_layer
 
 
-def send_decision(inf_time, acc, partitioning_layer):
+def send_decision(inf_time, acc, partitioning_layer, data):
 	
 	try:
 		payload = {'inference_time': inf_time, "accuracy": acc,
-		"partitioning_layer": partitioning_layer}
+		"partitioning_layer": partitioning_layer, "data": data}
 
 		url = "http://192.168.0.19:5000/api/a"
 
@@ -128,11 +129,34 @@ def __monitorspeed__(destIP):
 	return uplink_rate
 
 
-def decision_maker():
-	inf_time, acc, partitioning_layer = choosing_strategy(current_bandwidth=1.1)
-	print("oi")
+def decision_maker(img):
+
+	df = pd.read_csv(config.monitor_bandwidth_path)
+
+	bandwidth_avg = (df[-5:].values.mean())*(10**(-6))
+	bandwidth_avg = round(bandwidth_avg, 2)
+
+
+	inf_time, acc, partitioning_layer = choosing_strategy(current_bandwidth=bandwidth_avg)
+	
 	#result = send_decision(inf_time, acc, partitioning_layer)
-	print(__monitorspeed__("8.8.8.8"))
+
+	branchyNet = alex_conv.get_network(partitioning_layer)
+	
+	if(torch.cuda.is_available()):
+		branchyNet.to_gpu()
+	else:
+		branchyNet.to_gpu()
+
+	branch_models,_ = branchyNet.initiate_branch2()
+	branchyNet.testing()
+
+	
+	output = branchyNet.main(img)
+
+	if(partitioning_layer != "output"):
+		result = send_decision(inf_time, acc, partitioning_layer, output) 
+
 
 	return {"status":"ok"}
 

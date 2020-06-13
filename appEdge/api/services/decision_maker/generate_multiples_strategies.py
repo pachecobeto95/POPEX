@@ -39,15 +39,12 @@ def generate_strategies_curves(i, return_dict):
 
 	cont = 0
 
-	#print(config.strategies_curve_save_path)
-
 	for bandwidth in config.bandwidth_list:
 		print(bandwidth)
 		for idx, row in accuracies_data.iterrows():
 			weighted_acc_list, inference_time_list, partitioning_layer_list, probs = branchynet_graph.optim_acc_shortest_path(row, bandwidth)
 
 			df.at[cont, "bandwidth"] = bandwidth
-			#df.at[cont, "edge_cloud_factor"] = factor
 			df.at[cont, "t1"] = row.thresholds[0]
 			df.at[cont, "t2"] = row.thresholds[1]
 			df.at[cont, "t3"] = row.thresholds[2]
@@ -60,6 +57,6 @@ def generate_strategies_curves(i, return_dict):
 			cont+=1
 
 		print("uauhuha")
-		df.to_csv()
+		df.to_csv("a.csv")
 
 	#return_dict["status"] = "ok"

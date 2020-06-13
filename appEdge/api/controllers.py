@@ -43,11 +43,7 @@ def test():
 def edge():
 	fileImg = request.files["media"]
 
-
-	print(fileImg)
-
-
-	result = making_decision.decision_maker()
+	result = making_decision.decision_maker(fileImg)
 
 	if(result["status"] == 'ok'):
 		return jsonify({"status": "ok"}), 200

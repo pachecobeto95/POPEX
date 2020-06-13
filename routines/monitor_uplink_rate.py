@@ -20,10 +20,13 @@ def __monitorspeed__(destIP="8.8.8.8"):
 
 	if os.path.exists(monitor_bandwidth_path):
 		df = pd.read_csv(monitor_bandwidth_path)
+		df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
+
 	else:
 		df = pd.DataFrame(columns=["bandwidth"])
 
 	df = df.append(pd.DataFrame(uplink_rate_dict), ignore_index=True, sort=False)
+	print("Inserting")
 	df.to_csv(monitor_bandwidth_path)
 
 def remove_bandwidth():
