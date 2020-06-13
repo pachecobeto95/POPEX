@@ -12,9 +12,10 @@ from networks.utils import Flatten, PrintLayer, Branch, calculate_entropy
 import pandas as pd
 
 class DNN(nn.Module):
-	def __init__(self, layer_list):
+	def __init__(self, layer_list, partitioning_layer):
 		super(DNN, self).__init__()
 		self.layer_list = layer_list
+		self.partitioning_layer = partitioning_layer
 		self.layers = nn.ModuleList(self.layer_list)
 
 	def forward(self, inputs, n_model):
@@ -24,6 +25,9 @@ class DNN(nn.Module):
 		totaltime = 0
 		j = 0
 		#dict_size = {}
+		if(self.partitioning_layer == "input"):
+			return inputs, None
+
 		for i, layer in enumerate(self.layer_list):
 			start_time = time.time()
 			inputs = layer(inputs)
@@ -35,6 +39,11 @@ class DNN(nn.Module):
 				dict_runtime["l%s"%(j)] = totaltime
 				#dict_size["l%s"%(j)] = inputs.cpu().detach().numpy().nbytes
 				totatime = 0 
+				cont_vertex+=1
+				if(int(self.partitioning_layer[-1]) == cont_vertex):
+					print("entrou")
+					break
+
 			elif(isinstance(layer, Branch)):
 				dict_runtime["b%s"%(n_model)] = totaltime  
 
@@ -159,7 +168,7 @@ class BranchyNet:
 
 
 
-	def __init__(self, network, thresholdExits=None, percentTestExits=.9, percentTrainKeeps=1., 
+	def __init__(self, network, partitioning_layer, thresholdExits=None, percentTestExits=.9, percentTrainKeeps=1., 
 		lr=0.1, momentum=0.9, weight_decay=0.0001, alpha=0.001, opt="MomentumSGD", joint=True, 
 		verbose=False):
 		
@@ -205,8 +214,8 @@ class BranchyNet:
 
 
 
-		self.main = DNN(self.main_list)
-		self.models = [DNN(models) for models in self.models]
+		self.main = DNN(self.main_list, partitioning_layer)
+		self.models = [DNN(models, partitioning_layer) for models in self.models]
 
 		if self.opt == 'MomentumSGD':
 			self.optimizer_main = optim.SGD(self.main.parameters(), lr=self.lr, momentum=self.momentum, 
