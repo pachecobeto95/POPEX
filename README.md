@@ -8,7 +8,7 @@ This project proposes POPEX, a early exit networks partitioning system. In a bro
 This project is divided in two main component: Background and Decision Maker. The architecture of the system is shown below. 
 
 
-
+<img src="imgs/system_partitioning_branchyNet.pdf" alt="System Architecture" width="60%" height="60%"/>
 
 
 The Background component is responsable for monitoring the uplink rate of the network infrastructure between the edge device and tje cloud server, and also for extracting the optimization parameters. The Decision Maker executes the adaptive partitioning, according the optimization parameters and uplink rate extracted by the Background component. The adaptive partitioning consists of selecting an optimal partitioning, that maximizes the classification accuracy while also achieves a pre-defined user latency requirement. 
