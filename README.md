@@ -38,7 +38,7 @@ Finally, the third task consists of constructing a graph based on BranchyNet arc
 
 ## Decision Maker
 
-The component Decision Mkaer is responsible to select, dinamically, the optimal partitioning layer, using the parameters provided by the Background. Therefore, Decision Maker is able to determine which BranchyNet layers are processed at the edge device or at the cloud server. Decision maker is divided in four tasks: (1) estimation of inference time in BranchyNet; (2) optimization problem; (3) generation of multiples partitioning strategies; (4) decision of partitioning strategy. It is imporante to notice that, the first three tasks are executally, periodically, while the fourth is executed continually in inference process, in other words, it is executed whenever edge receives receives an input data. 
+The component Decision Maker is responsible to select, dinamically, the optimal partitioning layer, using the parameters provided by the Background. Therefore, Decision Maker is able to determine which BranchyNet layers are processed at the edge device or at the cloud server. Decision maker is divided in four tasks: (1) estimation of inference time in BranchyNet; (2) optimization problem; (3) generation of multiples partitioning strategies; (4) decision of partitioning strategy. It is imporante to notice that, the first three tasks are executally, periodically, while the fourth is executed continually in inference process, in other words, it is executed whenever edge receives receives an input data. 
 
 \begin{figure}[!htp]
     \centering
@@ -47,14 +47,38 @@ The component Decision Mkaer is responsible to select, dinamically, the optimal 
     \label{fig:decision_maker_architecture}
 \end{figure}
 
-No primeiro momento, o \textit{Decision Maker} recebe os parâmetros de tempo de processamento na borda e na nuvem, além do grafo associado a arquitetura da BranchyNet e o tempo de comunicação atual vindos do componente \textit{Background}. 
-Em seguida, o \textit{Decision Maker} executa a etapa de estimação do tempo de inferência. Em razão da BrachyNet possibilitar que amostras sejam classificadas antecipadamente nas camadas intermediárias, o tempo de inferência também está relacionado a probabilidade de classificar nos ramos laterais. Portanto, a modelagem do tempo de inferência deve descrever essas especifidades da BranchyNet. 
+At first, Decision Maker receives parameters of processing time at the edge and at cloud, in addition to the graph associated to BranchyNet architecture and the current communication time from Background. Then, Decision Makes constructs a new graph to convert the partitioning graph problem into a shortest path problem. Once constructed this new graph, we assign the weights in the links os this graph. As BranchyNet allows input samples to be classified at side branch, the weights assigned to the links are related to a probability of classifying a sample in a given side branch. This step in presented in detail [here](https://arxiv.org/pdf/2005.04099.pdf). At this stage, Decision Maker can execute the optimization problem to select the optimal partitioning that minimizes the inference time, using Dijkstra's algorithm. However, this particioning decision depends on several parameters, including the hyperparameters of the BranchyNet such as the threshold associated to each side branch. These threshold configuration decides whether an input sample can be classified at side branch or must be processed by the next layers. The choice of a threshold configurations handle to a trade-off between classification accuracy and inference time.  
+For example, when the entropy threshold of the first side branch is set to high values, such as 0.9, the first side branch can classify poorly confident samples, decreasing accuracy and inference time. Otherwise, when the entropy threshold of this side branch is set to low values, such as 0.1, only high confident input data can be classified at the first side branch, increasing accuracy and also inference time since the majority of samples requires to be processed by the next layers. 
+After that, we vary the entropy threshold of side branches and choose the partitioning strategy using the optimization method described in [here](https://arxiv.org/pdf/2005.04099.pdf), which minimizes the inference time. 
+Each entropy threshold configuration results in a different partitioning strategy with a specific pair of classification accuracy and inference time associated. At this stage, for a given uplink rate, there are multiples partitioning strategy stored for each threshold configuration with a unique pair of accuracy and inference time
+This step is also executed only once during system boot. At this point, finally, Decision Maker can excute the decision task, whoch goal is to select the partitioning strategy that maximizes the accuracy, while meets the pre-defined inference time provided by application. 
 
-Posteriormente, o \textit{Decision Maker} executa a otimização que encontra a estratégia de particionamento ótimo que minimize o tempo de inferência. 
-Contudo, conforme apresentado na Seção~\ref{sec:branchyNet}, a decisão do particionamento ótimo depende também do limiar de confiança, o que afeta o tempo de inferência, a acurácia, e consequentemente a decisão de particionamento. Logo, toda decisão de particionamento ótima está associada a uma configuração do limiar de entropia. Consequentemente, cada configuração dos limiares de entropia gera diferentes estratégias de particionamento ótimo. 
-Portanto, é necessário escolher a configuração de limiar de entropia que equilibre o compromisso entre acurácia e tempo de inferência. Para isso, executa-se a geração de múltiplas estratégias de particionamento. 
-Por fim, o \textit{Decision Maker} executa a etapa de decisão, a qual tem como objetivo selecionar aquela que maximiza a acurácia e atende ao requisito do tempo de inferência máximo informado pela aplicação.  
 
-A seção a seguir formaliza o problema e particionamento de BranchyNet, em seguida, as próximas seções detalham cada etapas do problema de otimização, a geração de múltiplas estratégias de particionamento e, finamente, a etapa de decisão.
+This repository containing the code to reproduce result found in "Inference Time Optimization Using BranchyNet Partitioning" paper. If you want to use this codebase, please cite:
+
+    @article{pacheco2020inference,
+        title={Inference Time Optimization Using BranchyNet Partitioning},
+        author={Pacheco, Roberto G and Couto, Rodrigo S},
+        journal={arXiv preprint arXiv:2005.04099},
+        year={2020}
+    }
+
+
+
+## Deployment 
+POPEX is deployed using a edge computing infrastructure
+
+## Requirements
+* Python 3.0+
+* pytorch
+* matplotlib
+* pandas
+* scipy
+* Flask
+
+
+
+
+
 
 
