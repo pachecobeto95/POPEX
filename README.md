@@ -8,7 +8,7 @@ This project proposes POPEX, a early exit networks partitioning system. In a bro
 This project is divided in two main component: Background and Decision Maker. The architecture of the system is shown below. 
 
 
-<img src="imgs/system_partitioning_branchyNet.pdf" alt="System Architecture" width="60%" height="60%"/>
+<img src="imgs/system_partitioning_branchyNet-1.png" alt="System Architecture" width="60%" height="60%"/>
 
 
 The Background component is responsable for monitoring the uplink rate of the network infrastructure between the edge device and tje cloud server, and also for extracting the optimization parameters. The Decision Maker executes the adaptive partitioning, according the optimization parameters and uplink rate extracted by the Background component. The adaptive partitioning consists of selecting an optimal partitioning, that maximizes the classification accuracy while also achieves a pre-defined user latency requirement. 
@@ -28,24 +28,13 @@ Besides that, the Background also monitors the uplink rate between edge device a
 
 Finally, the third task consists of constructing a graph based on BranchyNet architecture, where each layer corresponds to a vertex and a communication between layers represents the links in this graph. Therefore, POPEX convert a BranchyNet partitioning problem into a graph partitioning problem.  
 
-\begin{figure}[!htp]
-    \centering
-    \includegraphics[width=0.8\linewidth]{imgs_cap5/background.pdf}
-    \caption{Estrutura do componente \textit{Background}}
-    \label{fig:background_component}
-\end{figure}
 
 
 ## Decision Maker
 
 The component Decision Maker is responsible to select, dinamically, the optimal partitioning layer, using the parameters provided by the Background. Therefore, Decision Maker is able to determine which BranchyNet layers are processed at the edge device or at the cloud server. Decision maker is divided in four tasks: (1) estimation of inference time in BranchyNet; (2) optimization problem; (3) generation of multiples partitioning strategies; (4) decision of partitioning strategy. It is imporante to notice that, the first three tasks are executally, periodically, while the fourth is executed continually in inference process, in other words, it is executed whenever edge receives receives an input data. 
 
-\begin{figure}[!htp]
-    \centering
-    \includegraphics[width=\linewidth]{imgs_cap6/decision_maker2.pdf}
-    \caption{Ilustrações detalhada das tarefas que compõe o \textit{Decision Maker}}
-    \label{fig:decision_maker_architecture}
-\end{figure}
+
 
 At first, Decision Maker receives parameters of processing time at the edge and at cloud, in addition to the graph associated to BranchyNet architecture and the current communication time from Background. Then, Decision Makes constructs a new graph to convert the partitioning graph problem into a shortest path problem. Once constructed this new graph, we assign the weights in the links os this graph. As BranchyNet allows input samples to be classified at side branch, the weights assigned to the links are related to a probability of classifying a sample in a given side branch. This step in presented in detail [here](https://arxiv.org/pdf/2005.04099.pdf). At this stage, Decision Maker can execute the optimization problem to select the optimal partitioning that minimizes the inference time, using Dijkstra's algorithm. However, this particioning decision depends on several parameters, including the hyperparameters of the BranchyNet such as the threshold associated to each side branch. These threshold configuration decides whether an input sample can be classified at side branch or must be processed by the next layers. The choice of a threshold configurations handle to a trade-off between classification accuracy and inference time.  
 For example, when the entropy threshold of the first side branch is set to high values, such as 0.9, the first side branch can classify poorly confident samples, decreasing accuracy and inference time. Otherwise, when the entropy threshold of this side branch is set to low values, such as 0.1, only high confident input data can be classified at the first side branch, increasing accuracy and also inference time since the majority of samples requires to be processed by the next layers. 
