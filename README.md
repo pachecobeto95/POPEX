@@ -66,7 +66,7 @@ This repository containing the code to reproduce result found in "Inference Time
 
 
 ## Deployment 
-POPEX is deployed using a edge computing infrastructure
+POPEX is deployed using a edge computing infrastructure. This project deploys a Web API on edge device and cloud server using the Flask framework. The edge node has an Web API to receive the BranchyNet architecture from application and to receive images from the end devices. When application provides the BranchyNet, POPEX can execute the parameters extraction. Then, the edge devices receives an image from end device, POPEX can select the partitioning decision based on extracted parameters by Background. Once the partitioning strategy is choosen, edge device send to the cloud the choosen partitioning layer and the output data from partitioning layer. 
 
 ## Requirements
 * Python 3.0+
