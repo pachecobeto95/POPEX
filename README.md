@@ -1,4 +1,4 @@
-# POPEX (Partitioning OPtimization Early eXit network)
+# POPEX (Partitioning OPtimization for deep neural networks with Early eXits)
 
 This project proposes POPEX, an early exit network partitioning system. In a broader view, POPEX aims to accelerate the inference time, reducing not only communication delay though DNN partitioning, but also reducing the processing delay using early exit networks (e.g. BranchyNet). Therefore, this project aims to allow latency-sensitivity applications, such as smart car and cognitive assistance. To this end, POPEX splits an early exit network into two parts, so that one is processed at the edge device (e.g. smartphone, wearables, and laptops), while the other part is processed at the cloud server. 
 
